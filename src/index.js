@@ -3,13 +3,18 @@ module.exports = filename =>
     if (typeof func !== 'function') {
       throw `Expect workerize a function. Recieved${typeof func}`;
     }
-    return function(...args) {
-      const {
+    let Worker, isMainThread, parentPort, workerData;
+    try {
+      ({
         Worker,
         isMainThread,
         parentPort,
         workerData
-      } = require('worker_threads');
+      } = require('worker_threads'));
+    } catch (e) {
+      throw 'It seems something wrong when loading worker_threads.';
+    }
+    return function(...args) {
       if (isMainThread) {
         return new Promise((resolve, reject) => {
           const worker = new Worker(filename, {
